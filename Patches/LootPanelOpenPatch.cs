@@ -75,13 +75,14 @@ namespace DrakiaXYZ.LootRadius.Patches
             // Collect the items around the player, and add them to the fake stash
             var grid = _stash.Grids[0];
             Vector3 playerPosition = Singleton<GameWorld>.Instance.MainPlayer.Position;
+            playerPosition += (Vector3.up * 0.5f);
             Collider[] colliders = Physics.OverlapSphere(playerPosition, Settings.LootRadius.Value, _interactiveLayerMask);
             if (colliders.Length > 0)
             {
                 foreach (Collider collider in colliders)
                 {
                     var item = collider.gameObject.GetComponentInParent<LootItem>();
-                    if (item != null && item.Item.Parent.Container != grid)
+                    if (item != null && item.Item.Parent.Container != grid && (IsCloseEnough(item.transform.position) || IsLineOfSight(item.transform.position)))
                     {
                         item.Item.OriginalAddress = item.Item.CurrentAddress;
                         _removeMethod.Invoke(item.Item.CurrentAddress, new object[] { item.Item, string.Empty, false });
@@ -96,6 +97,37 @@ namespace DrakiaXYZ.LootRadius.Patches
             ____simpleStashPanel.Show(inventoryController, currentTab);
 
             _rightPaneField.SetValue(ItemUiContext.Instance, new LootItemClass[] { _stash });
+        }
+
+        /**
+         * Return true if the item is close enough to the player's feet to bypass the line of sight check
+         */
+        private static bool IsCloseEnough(Vector3 endPos)
+        {
+            float sqDist = (Singleton<GameWorld>.Instance.MainPlayer.Position - endPos).sqrMagnitude;
+            if (sqDist < 0.5f)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    
+        /**
+         * Return true if the end position is within line of sight of the player
+         */
+        private static bool IsLineOfSight(Vector3 endPos)
+        {
+            // Start at the player's head
+            Vector3 startPos = Singleton<GameWorld>.Instance.MainPlayer.MainParts[BodyPartType.head].Position;
+
+            // LineCast returns true if it hits a HighPolyCollider, indicating the item isn't within line of sight of the player's head
+            if (Physics.Linecast(startPos, endPos, LayerMaskClass.HighPolyWithTerrainMask))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

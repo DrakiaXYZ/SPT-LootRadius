@@ -23,8 +23,8 @@ namespace DrakiaXYZ.LootRadius.Helpers
                 "Loot Radius",
                 2f,
                 new ConfigDescription(
-                    "The distance to include loot from. Note that increasing this may result in pulling loot through walls/floors",
-                    null,
+                    "The distance to include loot from",
+                    new AcceptableValueRange<float>(0f, 10f),
                     new ConfigurationManagerAttributes { })));
 
             RecalcOrder();
