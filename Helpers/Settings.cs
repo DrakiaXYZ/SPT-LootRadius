@@ -21,7 +21,7 @@ namespace DrakiaXYZ.LootRadius.Helpers
             ConfigEntries.Add(LootRadius = Config.Bind(
                 GeneralSectionTitle,
                 "Loot Radius",
-                2f,
+                1.5f,
                 new ConfigDescription(
                     "The distance to include loot from",
                     new AcceptableValueRange<float>(0f, 10f),
