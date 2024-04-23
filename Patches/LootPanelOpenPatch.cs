@@ -72,24 +72,17 @@ namespace DrakiaXYZ.LootRadius.Patches
                 return;
             }
 
-            // Collect the items around the player, and add them to the fake stash
             var grid = _stash.Grids[0];
             Vector3 playerPosition = Singleton<GameWorld>.Instance.MainPlayer.Position;
+
+            // First find any items directly near the player's feet, to allow them to loot things like items slightly under the floor
+            Collider[] floorItemColliders = Physics.OverlapSphere(playerPosition, 0.35f, _interactiveLayerMask);
+            AddAllowedItems(grid, floorItemColliders, true);
+
+            // Then collect items around the player body, based on the loot radius
             playerPosition += (Vector3.up * 0.5f);
-            Collider[] colliders = Physics.OverlapSphere(playerPosition, Settings.LootRadius.Value, _interactiveLayerMask);
-            if (colliders.Length > 0)
-            {
-                foreach (Collider collider in colliders)
-                {
-                    var item = collider.gameObject.GetComponentInParent<LootItem>();
-                    if (item != null && item.Item.Parent.Container != grid && (IsCloseEnough(item.transform.position) || IsLineOfSight(item.transform.position)))
-                    {
-                        item.Item.OriginalAddress = item.Item.CurrentAddress;
-                        _removeMethod.Invoke(item.Item.CurrentAddress, new object[] { item.Item, string.Empty, false });
-                        _addMethod.Invoke(grid, new object[] { item.Item });
-                    }
-                }
-            }
+            Collider[] nearbyItemColliders = Physics.OverlapSphere(playerPosition, Settings.LootRadius.Value, _interactiveLayerMask);
+            AddAllowedItems(grid, nearbyItemColliders, false);
 
             // Show the stash in the inventory panel
             ____simpleStashPanel.Configure(_stash, inventoryController, sourceContext.CreateChild(_stash));
@@ -99,20 +92,20 @@ namespace DrakiaXYZ.LootRadius.Patches
             _rightPaneField.SetValue(ItemUiContext.Instance, new LootItemClass[] { _stash });
         }
 
-        /**
-         * Return true if the item is close enough to the player's feet to bypass the line of sight check
-         */
-        private static bool IsCloseEnough(Vector3 endPos)
+        private static void AddAllowedItems(StashGridClass grid, Collider[] colliders, bool ignoreLineOfSight)
         {
-            float sqDist = (Singleton<GameWorld>.Instance.MainPlayer.Position - endPos).sqrMagnitude;
-            if (sqDist < 0.5f)
+            foreach (Collider collider in colliders)
             {
-                return true;
+                var item = collider.gameObject.GetComponentInParent<LootItem>();
+                if (item != null && item.Item.Parent.Container != grid && (ignoreLineOfSight || IsLineOfSight(item.transform.position)))
+                {
+                    item.Item.OriginalAddress = item.Item.CurrentAddress;
+                    _removeMethod.Invoke(item.Item.CurrentAddress, new object[] { item.Item, string.Empty, false });
+                    _addMethod.Invoke(grid, new object[] { item.Item });
+                }
             }
-
-            return false;
         }
-    
+
         /**
          * Return true if the end position is within line of sight of the player
          */

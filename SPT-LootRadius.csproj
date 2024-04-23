@@ -128,6 +128,7 @@
     <Compile Include="Patches\GameStartedPatch.cs" />
     <Compile Include="Patches\LootPanelClosePatch.cs" />
     <Compile Include="Patches\LootPanelOpenPatch.cs" />
+    <Compile Include="Patches\QuestItemDragPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
