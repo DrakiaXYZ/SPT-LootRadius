@@ -1,4 +1,4 @@
-﻿using Aki.Reflection.Patching;
+﻿using SPT.Reflection.Patching;
 using EFT.Interactive;
 using EFT.UI;
 using EFT;
@@ -85,7 +85,7 @@ namespace DrakiaXYZ.LootRadius.Patches
             AddAllowedItems(grid, nearbyItemColliders, false);
 
             // Show the stash in the inventory panel
-            ____simpleStashPanel.Configure(_stash, inventoryController, sourceContext.CreateChild(_stash));
+            ____simpleStashPanel.Configure(_stash, inventoryController, sourceContext.CreateChild(_stash), true);
             _stashViewField.SetValue(__instance, ____simpleStashPanel);
             ____simpleStashPanel.Show(inventoryController, currentTab);
 
