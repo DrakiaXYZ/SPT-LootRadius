@@ -14,7 +14,7 @@ namespace DrakiaXYZ.LootRadius.Patches
     {
         private static MethodInfo _addMethod;
 
-        private static StashClass _stash
+        private static StashItemClass _stash
         {
             get { return LootRadiusPlugin.RadiusStash; }
             set { LootRadiusPlugin.RadiusStash = value; }
@@ -53,7 +53,7 @@ namespace DrakiaXYZ.LootRadius.Patches
                 }
                 else
                 {
-                    _addMethod.Invoke(item.OriginalAddress, new object[] { item, Array.Empty<string>(), false });
+                    _addMethod.Invoke(item.OriginalAddress, new object[] { item, false });
                 }
             }
         }

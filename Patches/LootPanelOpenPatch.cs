@@ -16,13 +16,12 @@ namespace DrakiaXYZ.LootRadius.Patches
 {
     public class LootPanelOpenPatch : ModulePatch
     {
-        private static FieldInfo _stashViewField;
         private static FieldInfo _rightPaneField;
-        private static MethodInfo _addMethod;
+        private static MethodInfo _addAnywhereMethod;
         private static MethodInfo _removeMethod;
         private static LayerMask _interactiveLayerMask = 1 << LayerMask.NameToLayer("Interactive");
 
-        private static StashClass _stash
+        private static StashItemClass _stash
         {
             get { return LootRadiusPlugin.RadiusStash; }
             set { LootRadiusPlugin.RadiusStash = value; }
@@ -30,7 +29,7 @@ namespace DrakiaXYZ.LootRadius.Patches
 
         protected override MethodBase GetTargetMethod()
         {
-            _addMethod = AccessTools.Method(typeof(StashGridClass), "Add", new Type[] { typeof(Item) });
+            _addAnywhereMethod = AccessTools.Method(typeof(StashGridClass), "AddAnywhere");
             _removeMethod = AccessTools.Method(typeof(ItemAddress), "Remove");
 
             // Find the stash interface variable, based on the implemented types of the SimpleStashPanel
@@ -44,10 +43,9 @@ namespace DrakiaXYZ.LootRadius.Patches
                     break;
                 }
             }
-            _stashViewField = AccessTools.GetDeclaredFields(typeof(ItemsPanel)).Single(x => x.FieldType == stashInterfaceType);
 
             // Find the variable that stores the right hand grid in the ItemUiContext, so we can Ctrl+Click
-            _rightPaneField = AccessTools.GetDeclaredFields(typeof(ItemUiContext)).Single(x => x.FieldType == typeof(LootItemClass[]));
+            _rightPaneField = AccessTools.GetDeclaredFields(typeof(ItemUiContext)).Single(x => x.FieldType == typeof(CompoundItem[]));
 
             return typeof(ItemsPanel).GetMethod(nameof(ItemsPanel.Show));
         }
@@ -57,8 +55,8 @@ namespace DrakiaXYZ.LootRadius.Patches
             ItemsPanel __instance,
             Task __result,
             ItemContextAbstractClass sourceContext,
-            LootItemClass lootItem,
-            InventoryControllerClass inventoryController,
+            CompoundItem lootItem,
+            InventoryController inventoryController,
             ItemsPanel.EItemsTab currentTab,
             SimpleStashPanel ____simpleStashPanel
         )
@@ -85,11 +83,10 @@ namespace DrakiaXYZ.LootRadius.Patches
             AddAllowedItems(grid, nearbyItemColliders, false);
 
             // Show the stash in the inventory panel
-            ____simpleStashPanel.Configure(_stash, inventoryController, sourceContext.CreateChild(_stash), true);
-            _stashViewField.SetValue(__instance, ____simpleStashPanel);
-            ____simpleStashPanel.Show(inventoryController, currentTab);
+            ____simpleStashPanel.Show(_stash, inventoryController, sourceContext.CreateChild(_stash), true, inventoryController, currentTab);
+            ///////// this.UI.AddDisposable<SimpleStashPanel>(this._simpleStashPanel);
 
-            _rightPaneField.SetValue(ItemUiContext.Instance, new LootItemClass[] { _stash });
+            _rightPaneField.SetValue(ItemUiContext.Instance, new CompoundItem[] { _stash });
         }
 
         private static void AddAllowedItems(StashGridClass grid, Collider[] colliders, bool ignoreLineOfSight)
@@ -100,8 +97,8 @@ namespace DrakiaXYZ.LootRadius.Patches
                 if (item != null && item.Item.Parent.Container != grid && (ignoreLineOfSight || IsLineOfSight(item.transform.position)))
                 {
                     item.Item.OriginalAddress = item.Item.CurrentAddress;
-                    _removeMethod.Invoke(item.Item.CurrentAddress, new object[] { item.Item, string.Empty, false });
-                    _addMethod.Invoke(grid, new object[] { item.Item });
+                    _removeMethod.Invoke(item.Item.CurrentAddress, new object[] { item.Item, false });
+                    _addAnywhereMethod.Invoke(grid, new object[] { item.Item, EErrorHandlingType.Ignore });
                 }
             }
         }

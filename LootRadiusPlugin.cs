@@ -4,11 +4,11 @@ using DrakiaXYZ.LootRadius.Patches;
 
 namespace DrakiaXYZ.LootRadius
 {
-    [BepInPlugin("xyz.drakia.lootradius", "DrakiaXYZ-LootRadius", "1.1.0")]
-    [BepInDependency("com.SPT.core", "3.9.0")]
+    [BepInPlugin("xyz.drakia.lootradius", "DrakiaXYZ-LootRadius", "1.2.0")]
+    [BepInDependency("com.SPT.core", "3.10.0")]
     public class LootRadiusPlugin : BaseUnityPlugin
     {
-        public static StashClass RadiusStash;
+        public static StashItemClass RadiusStash;
 
         private void Awake()
         {
