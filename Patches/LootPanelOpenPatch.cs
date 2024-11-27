@@ -58,7 +58,8 @@ namespace DrakiaXYZ.LootRadius.Patches
             CompoundItem lootItem,
             InventoryController inventoryController,
             ItemsPanel.EItemsTab currentTab,
-            SimpleStashPanel ____simpleStashPanel
+            SimpleStashPanel ____simpleStashPanel,
+            AddViewList ___UI
         )
         {
             // Wait for original to finish
@@ -84,7 +85,7 @@ namespace DrakiaXYZ.LootRadius.Patches
 
             // Show the stash in the inventory panel
             ____simpleStashPanel.Show(_stash, inventoryController, sourceContext.CreateChild(_stash), true, inventoryController, currentTab);
-            ///////// this.UI.AddDisposable<SimpleStashPanel>(this._simpleStashPanel);
+            ___UI.AddDisposable<SimpleStashPanel>(____simpleStashPanel);
 
             _rightPaneField.SetValue(ItemUiContext.Instance, new CompoundItem[] { _stash });
         }
