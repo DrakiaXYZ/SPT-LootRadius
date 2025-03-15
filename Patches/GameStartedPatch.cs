@@ -29,7 +29,7 @@ namespace DrakiaXYZ.LootRadius.Patches
                 StashGridClass stashGridClass = new StashGridClass(_stash.Id, 10, 10, true, false, Array.Empty<ItemFilter>(), _stash);
                 _stash.Grids = new StashGridClass[] { stashGridClass };
                 var traderController = new TraderControllerClass(_stash, "RadiusStash", "Nearby Items", false, EOwnerType.Profile);
-                Singleton<GameWorld>.Instance.ItemOwners.Add(traderController, default(GameWorld.GStruct121));
+                Singleton<GameWorld>.Instance.ItemOwners.Add(traderController, default(GameWorld.GStruct126));
 
                 // Destroy the loot item from the world when we take it
                 traderController.RemoveItemEvent += (GEventArgs3 args) => {

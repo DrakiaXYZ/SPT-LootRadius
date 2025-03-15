@@ -59,7 +59,7 @@ namespace DrakiaXYZ.LootRadius.Patches
             InventoryController inventoryController,
             ItemsPanel.EItemsTab currentTab,
             SimpleStashPanel ____simpleStashPanel,
-            AddViewList ___UI
+            AddViewListClass ___UI
         )
         {
             // Wait for original to finish
