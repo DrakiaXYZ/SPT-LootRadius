@@ -17,8 +17,6 @@ namespace DrakiaXYZ.LootRadius.Patches
     public class LootPanelOpenPatch : ModulePatch
     {
         private static FieldInfo _rightPaneField;
-        private static MethodInfo _addAnywhereMethod;
-        private static MethodInfo _removeMethod;
         private static LayerMask _interactiveLayerMask = 1 << LayerMask.NameToLayer("Interactive");
 
         private static StashItemClass _stash
@@ -29,21 +27,6 @@ namespace DrakiaXYZ.LootRadius.Patches
 
         protected override MethodBase GetTargetMethod()
         {
-            _addAnywhereMethod = AccessTools.Method(typeof(StashGridClass), "AddAnywhere");
-            _removeMethod = AccessTools.Method(typeof(ItemAddress), "Remove");
-
-            // Find the stash interface variable, based on the implemented types of the SimpleStashPanel
-            Type stashInterfaceType = null;
-            Type[] stashInterfaceTypes = typeof(SimpleStashPanel).GetInterfaces();
-            foreach (Type type in stashInterfaceTypes)
-            {
-                if (type.Name.StartsWith("GInterface"))
-                {
-                    stashInterfaceType = type;
-                    break;
-                }
-            }
-
             // Find the variable that stores the right hand grid in the ItemUiContext, so we can Ctrl+Click
             _rightPaneField = AccessTools.GetDeclaredFields(typeof(ItemUiContext)).Single(x => x.FieldType == typeof(CompoundItem[]));
 
@@ -71,7 +54,7 @@ namespace DrakiaXYZ.LootRadius.Patches
                 return;
             }
 
-            var grid = _stash.Grids[0];
+            LootRadiusStashGrid grid = _stash.Grids[0] as LootRadiusStashGrid;
             Vector3 playerPosition = Singleton<GameWorld>.Instance.MainPlayer.Position;
 
             // First find any items directly near the player's feet, to allow them to loot things like items slightly under the floor
@@ -90,16 +73,16 @@ namespace DrakiaXYZ.LootRadius.Patches
             _rightPaneField.SetValue(ItemUiContext.Instance, new CompoundItem[] { _stash });
         }
 
-        private static void AddAllowedItems(StashGridClass grid, Collider[] colliders, bool ignoreLineOfSight)
+        private static void AddAllowedItems(LootRadiusStashGrid grid, Collider[] colliders, bool ignoreLineOfSight)
         {
             foreach (Collider collider in colliders)
             {
                 var item = collider.gameObject.GetComponentInParent<LootItem>();
-                if (item != null && item.Item.Parent.Container != grid && (ignoreLineOfSight || IsLineOfSight(item.transform.position)))
+                if (item != null && item.Item.Parent.Container.ID != grid.ID && (ignoreLineOfSight || IsLineOfSight(item.transform.position)))
                 {
-                    item.Item.OriginalAddress = item.Item.CurrentAddress;
-                    _removeMethod.Invoke(item.Item.CurrentAddress, new object[] { item.Item, false });
-                    _addAnywhereMethod.Invoke(grid, new object[] { item.Item, EErrorHandlingType.Ignore });
+                    item.ItemOwner.RemoveItemEvent += grid.OwnerRemoveItemEvent;
+
+                    grid.AddInternal(item.Item, grid.FindFreeSpace(item.Item), false, true);
                 }
             }
         }

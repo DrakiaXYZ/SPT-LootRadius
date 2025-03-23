@@ -129,11 +129,13 @@
   <ItemGroup>
     <Compile Include="Helpers\ConfigurationManagerAttributes.cs" />
     <Compile Include="Helpers\Settings.cs" />
+    <Compile Include="Helpers\LootRadiusStashGrid.cs" />
     <Compile Include="Helpers\Utils.cs" />
     <Compile Include="LootRadiusPlugin.cs" />
     <Compile Include="Patches\GameStartedPatch.cs" />
     <Compile Include="Patches\LootPanelClosePatch.cs" />
     <Compile Include="Patches\LootPanelOpenPatch.cs" />
+    <Compile Include="Patches\LootRadiusQuickMovePatch.cs" />
     <Compile Include="Patches\QuestItemDragPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

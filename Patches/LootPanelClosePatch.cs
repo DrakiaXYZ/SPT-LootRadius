@@ -12,8 +12,6 @@ namespace DrakiaXYZ.LootRadius.Patches
 {
     public class LootPanelClosePatch : ModulePatch
     {
-        private static MethodInfo _addMethod;
-
         private static StashItemClass _stash
         {
             get { return LootRadiusPlugin.RadiusStash; }
@@ -22,8 +20,6 @@ namespace DrakiaXYZ.LootRadius.Patches
 
         protected override MethodBase GetTargetMethod()
         {
-            _addMethod = AccessTools.Method(typeof(ItemAddress), "Add");
-
             return typeof(ItemsPanel).GetMethod(nameof(ItemsPanel.Close));
         }
 
@@ -35,27 +31,8 @@ namespace DrakiaXYZ.LootRadius.Patches
                 return;
             }
 
-            var grid = _stash.Grids[0];
-
-            // Store a copy of the items, so we can restore their state or throw them as loose loot
-            var items = grid.Items.ToList();
-
-            // Clear all the items
-            grid.RemoveAll();
-
-            // Restore items and throw as loose loot, as necessary
-            foreach (var item in items)
-            {
-                // If the original address is null, or the item isn't in the loose loot pool, it's a discarded item
-                if (item.OriginalAddress == null || Helpers.Utils.FindLootById(item.Id) == null)
-                {
-                    Singleton<GameWorld>.Instance.ThrowItem(item, Singleton<GameWorld>.Instance.MainPlayer, null);
-                }
-                else
-                {
-                    _addMethod.Invoke(item.OriginalAddress, new object[] { item, false });
-                }
-            }
+            // Clear all the items from the loot radius grid
+            _stash.Grids[0].RemoveAll();
         }
     }
 }
