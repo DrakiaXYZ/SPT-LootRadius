@@ -27,7 +27,7 @@ namespace DrakiaXYZ.LootRadius.Patches
             // Setup the radius stash on raid start
             if (_stash == null)
             {
-                _stash = Singleton<ItemFactoryClass>.Instance.CreateFakeStash();
+                _stash = Singleton<ItemFactoryClass>.Instance.CreateFakeStash("67e07d6d4d6c60afff004b41");
 
                 var stashGridClass = new LootRadiusStashGrid("lootRadiusGrid", _stash);
                 _stash.Grids = new StashGridClass[] { stashGridClass };
