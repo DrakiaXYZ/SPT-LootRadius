@@ -10,6 +10,7 @@ using ContainerRemoveEventClass = GClass3205;
 using ContainerAddEventClass = GClass3207;
 using ContainerRemoveEventResultStruct = GStruct455<GClass3205>;
 using ContainerAddEventResultStruct = GStruct455<GClass3207>;
+using EFT.UI.DragAndDrop;
 
 
 namespace DrakiaXYZ.LootRadius.Helpers
@@ -19,6 +20,8 @@ namespace DrakiaXYZ.LootRadius.Helpers
      */
     class LootRadiusStashGrid : StashGridClass
     {
+        public GridView[] GridViews { get; set; } = null;
+
         public override StashGridCollectionClass ItemCollection { get; } = new LootRadiusStashGridCollection();
 
         public LootRadiusStashGrid(string id, CompoundItem parentItem) : 
@@ -86,8 +89,27 @@ namespace DrakiaXYZ.LootRadius.Helpers
 
         public void OwnerRemoveItemEvent(GEventArgs3 args)
         {
-            Console.WriteLine($"Hello, we're in the Owner remove event for {args.Item} {args.Item.Name}");
+            if (args.Status != CommandStatus.Succeed)
+            {
+                return;
+            }
+
             args.Item.CurrentAddress.GetOwner().RemoveItemEvent -= this.OwnerRemoveItemEvent;
+
+            // If we have GridViews we can update, try to remove this item from them
+            if (GridViews != null && this.ItemCollection.ContainsKey(args.Item))
+            {
+                var locationInGrid = this.ItemCollection[args.Item];
+                var item = args.Item;
+                var location = CreateItemAddress(locationInGrid);
+                var owner = item.Owner;
+
+                foreach (var gridView in GridViews)
+                {
+                    gridView.OnItemRemoved(new GEventArgs3(item, location, CommandStatus.Begin, owner));
+                    gridView.OnItemRemoved(new GEventArgs3(item, location, CommandStatus.Succeed, owner));
+                }
+            }
 
             this.RemoveInternal(args.Item, false, false);
         }

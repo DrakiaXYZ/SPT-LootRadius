@@ -17,6 +17,12 @@ namespace DrakiaXYZ.LootRadius.Patches
         [PatchPrefix]
         public static void PatchPrefix(ref IEnumerable<CompoundItem> targets)
         {
+            // If we're not in-raid, do nothing
+            if (!Singleton<GameWorld>.Instantiated)
+            {
+                return;
+            }
+
             // Don't do anything if this isn't a loot radius transfer, or if the default inventory already exists
             var defaultInventory = Singleton<GameWorld>.Instance.MainPlayer.Inventory.Equipment;
             if (!targets.Any(target => (target.Grids?.Length > 0 && target.Grids[0].ID == "lootRadiusGrid")) ||

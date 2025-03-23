@@ -11,12 +11,15 @@ using UnityEngine;
 using Comfort.Common;
 using DrakiaXYZ.LootRadius.Helpers;
 using EFT.InventoryLogic;
+using EFT.UI.DragAndDrop;
 
 namespace DrakiaXYZ.LootRadius.Patches
 {
     public class LootPanelOpenPatch : ModulePatch
     {
         private static FieldInfo _rightPaneField;
+        private static FieldInfo _simplePanelField;
+        private static FieldInfo _containedGridsViewField;
         private static LayerMask _interactiveLayerMask = 1 << LayerMask.NameToLayer("Interactive");
 
         private static StashItemClass _stash
@@ -29,6 +32,10 @@ namespace DrakiaXYZ.LootRadius.Patches
         {
             // Find the variable that stores the right hand grid in the ItemUiContext, so we can Ctrl+Click
             _rightPaneField = AccessTools.GetDeclaredFields(typeof(ItemUiContext)).Single(x => x.FieldType == typeof(CompoundItem[]));
+
+            // Used for removing an item from the GridView
+            _simplePanelField = AccessTools.Field(typeof(SimpleStashPanel), "_simplePanel");
+            _containedGridsViewField = AccessTools.Field(typeof(SearchableItemView), "containedGridsView_0");
 
             return typeof(ItemsPanel).GetMethod(nameof(ItemsPanel.Show));
         }
@@ -71,6 +78,10 @@ namespace DrakiaXYZ.LootRadius.Patches
             ___UI.AddDisposable<SimpleStashPanel>(____simpleStashPanel);
 
             _rightPaneField.SetValue(ItemUiContext.Instance, new CompoundItem[] { _stash });
+
+            var simplePanel = _simplePanelField.GetValue(____simpleStashPanel) as SearchableItemView;
+            var containedGridsView = _containedGridsViewField.GetValue(simplePanel) as ContainedGridsView;
+            grid.GridViews = containedGridsView.GridViews;
         }
 
         private static void AddAllowedItems(LootRadiusStashGrid grid, Collider[] colliders, bool ignoreLineOfSight)

@@ -7,6 +7,7 @@ using System.Reflection;
 using Comfort.Common;
 using HarmonyLib;
 using EFT.InventoryLogic;
+using DrakiaXYZ.LootRadius.Helpers;
 
 namespace DrakiaXYZ.LootRadius.Patches
 {
@@ -31,8 +32,11 @@ namespace DrakiaXYZ.LootRadius.Patches
                 return;
             }
 
+            LootRadiusStashGrid grid = _stash.Grids[0] as LootRadiusStashGrid;
+
             // Clear all the items from the loot radius grid
-            _stash.Grids[0].RemoveAll();
+            grid.RemoveAll();
+            grid.GridViews = null;
         }
     }
 }
