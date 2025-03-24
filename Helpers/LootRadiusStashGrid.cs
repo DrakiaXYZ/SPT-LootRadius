@@ -20,6 +20,7 @@ namespace DrakiaXYZ.LootRadius.Helpers
      */
     class LootRadiusStashGrid : StashGridClass
     {
+        public static string GRIDID = "67e0b18aeef9ae200b0495f0";
         public GridView[] GridViews { get; set; } = null;
 
         public override StashGridCollectionClass ItemCollection { get; } = new LootRadiusStashGridCollection();
@@ -123,12 +124,22 @@ namespace DrakiaXYZ.LootRadius.Helpers
             {
                 this.dictionary_0[item] = location;
                 this.list_0.Add(item);
+
+                if (item.CurrentAddress == null)
+                {
+                    item.CurrentAddress = grid.CreateItemAddress(location);
+                }
             }
 
             public override void Remove(Item item, StashGridClass grid)
             {
                 this.dictionary_0.Remove(item);
                 this.list_0.Remove(item);
+
+                if (item.CurrentAddress.Container.ID == grid.ID)
+                {
+                    item.CurrentAddress = null;
+                }
             }
         }
     }

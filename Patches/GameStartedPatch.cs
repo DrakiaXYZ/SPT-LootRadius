@@ -32,26 +32,8 @@ namespace DrakiaXYZ.LootRadius.Patches
                 var stashGridClass = new LootRadiusStashGrid("lootRadiusGrid", _stash);
                 _stash.Grids = new StashGridClass[] { stashGridClass };
 
-                var traderController = new TraderControllerClass(_stash, "RadiusStash", "Nearby Items", false, EOwnerType.Profile);
+                var traderController = new TraderControllerClass(_stash, LootRadiusStashGrid.GRIDID, "Nearby Items", false, EOwnerType.Profile);
                 Singleton<GameWorld>.Instance.ItemOwners.Add(traderController, default(GameWorld.GStruct126));
-
-                traderController.AddItemEvent += (GEventArgs2 args) =>
-                {
-                    // Only trigger on Success
-                    if (args.Status != CommandStatus.Succeed)
-                    {
-                        return;
-                    }
-
-                    // If the item is coming from somewhere other than this container, throw it into the world, as it's the player moving an item from their inventory
-                    if (args.Item.CurrentAddress?.Container != args.To.Container)
-                    {
-                        var lootItem = Singleton<GameWorld>.Instance.ThrowItem(args.Item, Singleton<GameWorld>.Instance.MainPlayer, null);
-
-                        // Handle item removal
-                        lootItem.ItemOwner.RemoveItemEvent += stashGridClass.OwnerRemoveItemEvent;
-                    }
-                };
             }
         }
     }

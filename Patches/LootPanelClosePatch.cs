@@ -8,6 +8,7 @@ using Comfort.Common;
 using HarmonyLib;
 using EFT.InventoryLogic;
 using DrakiaXYZ.LootRadius.Helpers;
+using UnityEngine;
 
 namespace DrakiaXYZ.LootRadius.Patches
 {
@@ -33,6 +34,16 @@ namespace DrakiaXYZ.LootRadius.Patches
             }
 
             LootRadiusStashGrid grid = _stash.Grids[0] as LootRadiusStashGrid;
+            foreach (var item in grid.ItemCollection.Keys.ToList())
+            {
+                // If the item is actually inside the radius grid, toss it
+                if (item.CurrentAddress?.Container.ID == grid.ID)
+                {
+                    var player = Singleton<GameWorld>.Instance.MainPlayer;
+                    item.CurrentAddress = player.InventoryController.CreateItemAddress();
+                    player.InventoryController.ThrowItem(item, true);
+                }
+            }
 
             // Clear all the items from the loot radius grid
             grid.RemoveAll();

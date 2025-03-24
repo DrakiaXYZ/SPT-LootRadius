@@ -4,6 +4,7 @@ using EFT.UI.DragAndDrop;
 using HarmonyLib;
 using System.Linq;
 using System.Reflection;
+using DrakiaXYZ.LootRadius.Helpers;
 
 namespace DrakiaXYZ.LootRadius.Patches
 {
@@ -22,7 +23,7 @@ namespace DrakiaXYZ.LootRadius.Patches
         {
             // If not the RadiusStash GridView, run original
             IItemOwner gridOwner = _itemOwnerField.GetValue(__instance) as IItemOwner;
-            if (gridOwner.ID != "RadiusStash")
+            if (gridOwner.ID != LootRadiusStashGrid.GRIDID)
             {
                 return true;
             }
