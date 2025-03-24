@@ -27,13 +27,22 @@ namespace DrakiaXYZ.LootRadius.Patches
             // Setup the radius stash on raid start
             if (_stash == null)
             {
-                _stash = Singleton<ItemFactoryClass>.Instance.CreateFakeStash("67e07d6d4d6c60afff004b41");
+                foreach (var player in Singleton<GameWorld>.Instance.AllAlivePlayersList)
+                {
+                    if (player.IsAI) continue;
 
-                var stashGridClass = new LootRadiusStashGrid("lootRadiusGrid", _stash);
-                _stash.Grids = new StashGridClass[] { stashGridClass };
+                    var stash = Singleton<ItemFactoryClass>.Instance.CreateFakeStash(player.ProfileId);
+                    var stashGridClass = new LootRadiusStashGrid("lootRadiusGrid", stash);
+                    stash.Grids = new StashGridClass[] { stashGridClass };
 
-                var traderController = new TraderControllerClass(_stash, LootRadiusStashGrid.GRIDID, "Nearby Items", false, EOwnerType.Profile);
-                Singleton<GameWorld>.Instance.ItemOwners.Add(traderController, default(GameWorld.GStruct126));
+                    var traderController = new TraderControllerClass(stash, LootRadiusStashGrid.GRIDID, "Nearby Items", false, EOwnerType.Profile);
+                    Singleton<GameWorld>.Instance.ItemOwners.Add(traderController, default(GameWorld.GStruct126));
+
+                    if (player.PlayerId == GamePlayerOwner.MyPlayer.PlayerId)
+                    {
+                        _stash = stash;
+                    }
+                }
             }
         }
     }

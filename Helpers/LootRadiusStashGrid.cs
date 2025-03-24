@@ -11,6 +11,8 @@ using ContainerAddEventClass = GClass3207;
 using ContainerRemoveEventResultStruct = GStruct455<GClass3205>;
 using ContainerAddEventResultStruct = GStruct455<GClass3207>;
 using EFT.UI.DragAndDrop;
+using EFT;
+using Comfort.Common;
 
 
 namespace DrakiaXYZ.LootRadius.Helpers
@@ -95,7 +97,8 @@ namespace DrakiaXYZ.LootRadius.Helpers
                 return;
             }
 
-            args.Item.CurrentAddress.GetOwner().RemoveItemEvent -= this.OwnerRemoveItemEvent;
+            var owner = Singleton<GameWorld>.Instance.FindOwnerById(args.OwnerId);
+            owner.RemoveItemEvent -= this.OwnerRemoveItemEvent;
 
             // If we have GridViews we can update, try to remove this item from them
             if (GridViews != null && this.ItemCollection.ContainsKey(args.Item))
@@ -103,7 +106,6 @@ namespace DrakiaXYZ.LootRadius.Helpers
                 var locationInGrid = this.ItemCollection[args.Item];
                 var item = args.Item;
                 var location = CreateItemAddress(locationInGrid);
-                var owner = item.Owner;
 
                 foreach (var gridView in GridViews)
                 {
@@ -136,7 +138,7 @@ namespace DrakiaXYZ.LootRadius.Helpers
                 this.dictionary_0.Remove(item);
                 this.list_0.Remove(item);
 
-                if (item.CurrentAddress.Container.ID == grid.ID)
+                if (item.CurrentAddress?.Container?.ID == grid.ID)
                 {
                     item.CurrentAddress = null;
                 }

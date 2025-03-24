@@ -23,18 +23,18 @@ namespace DrakiaXYZ.LootRadius.Patches
                 return;
             }
 
-            // Don't do anything if this isn't a loot radius transfer, or if the default inventory already exists
-            var defaultInventory = Singleton<GameWorld>.Instance.MainPlayer.Inventory.Equipment;
-            if (!targets.Any(target => (target.Grids?.Length > 0 && target.Grids[0].ID == "lootRadiusGrid")) ||
-                targets.Any(target => (target == defaultInventory)))
+            // Don't do anything if the only target isn't the loot radius grid
+            if (targets.Count() != 1 || targets.ElementAt(0).Grids?.Length == 0 || targets.ElementAt(0).Grids?.ElementAt(0)?.ID != "lootRadiusGrid")
             {
                 return;
             }
 
-            // Add the default inventory to the list
-            List<CompoundItem> newTargets = targets.ToList();
-            newTargets.Add(defaultInventory);
-            targets = newTargets;
+            // Replace the targets with the default inventory only
+            var defaultInventory = Singleton<GameWorld>.Instance.MainPlayer.Inventory.Equipment;
+            targets = new List<CompoundItem>
+            {
+                defaultInventory
+            };
         }
     }
 }
