@@ -97,6 +97,12 @@ namespace DrakiaXYZ.LootRadius.Helpers
                 return;
             }
 
+            // Child items of items in the grid, we don't want to actually remove them, let the grid handle it
+            if (args.From.Container.ParentItem != args.Item)
+            {
+                return;
+            }
+
             var owner = Singleton<GameWorld>.Instance.FindOwnerById(args.OwnerId);
             owner.RemoveItemEvent -= this.OwnerRemoveItemEvent;
 
